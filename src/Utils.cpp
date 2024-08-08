@@ -25,19 +25,19 @@ extern "C" const IMAGE_DOS_HEADER __ImageBase;
 namespace infra {
 
 uint32_t infra_htonl(uint32_t value) {
-    return ::htonl(value);
+    return htonl(value);
 }
 
 uint16_t infra_htons(uint16_t value) {
-    return ::htons(value);
+    return htons(value);
 }
 
 uint32_t infra_ntohl(uint32_t value) {
-    return ::ntohl(value);
+    return ntohl(value);
 }
 
 uint16_t infra_ntohs(uint16_t value) {
-    return ::ntohs(value);
+    return ntohs(value);
 }
 
 int32_t getCurrentThreadId() {
@@ -48,6 +48,48 @@ int32_t getCurrentThreadId() {
     return (int32_t)syscall(SYS_gettid);
 #endif
 }
+
+#if defined(__MACH__) || defined(__APPLE__)
+#include <limits.h>
+#include <mach-o/dyld.h> /* _NSGetExecutablePath */
+
+int uv_exepath(char *buffer, int *size) {
+    /* realpath(exepath) may be > PATH_MAX so double it to be on the safe side. */
+    char abspath[PATH_MAX * 2 + 1];
+    char exepath[PATH_MAX + 1];
+    uint32_t exepath_size;
+    size_t abspath_size;
+
+    if (buffer == nullptr || size == nullptr || *size == 0) {
+        return -EINVAL;
+    }
+
+    exepath_size = sizeof(exepath);
+    if (_NSGetExecutablePath(exepath, &exepath_size)) {
+        return -EIO;
+    }
+
+    if (realpath(exepath, abspath) != abspath) {
+        return -errno;
+    }
+
+    abspath_size = strlen(abspath);
+    if (abspath_size == 0) {
+        return -EIO;
+    }
+
+    *size -= 1;
+    if ((size_t) *size > abspath_size) {
+        *size = abspath_size;
+    }
+
+    memcpy(buffer, abspath, *size);
+    buffer[*size] = '\0';
+
+    return 0;
+}
+
+#endif //defined(__MACH__) || defined(__APPLE__)
 
 std::string exePath(bool isExe /*= true*/) {
     char buffer[256 + 1] = {0};
