@@ -58,11 +58,11 @@ private:
 
 int32_t getCurrentThreadId();
 
-uint32_t htonl(uint32_t value);
-uint16_t htons(uint16_t value);
+uint32_t infra_htonl(uint32_t value);
+uint16_t infra_htons(uint16_t value);
 
-uint32_t ntohl(uint32_t value);
-uint16_t ntohs(uint16_t value);
+uint32_t infra_ntohl(uint32_t value);
+uint16_t infra_ntohs(uint16_t value);
 
 std::string exePath(bool isExe = true);
 

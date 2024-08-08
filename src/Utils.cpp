@@ -24,19 +24,19 @@ extern "C" const IMAGE_DOS_HEADER __ImageBase;
 
 namespace infra {
 
-uint32_t htonl(uint32_t value) {
+uint32_t infra_htonl(uint32_t value) {
     return ::htonl(value);
 }
 
-uint16_t htons(uint16_t value) {
+uint16_t infra_htons(uint16_t value) {
     return ::htons(value);
 }
 
-uint32_t ntohl(uint32_t value) {
+uint32_t infra_ntohl(uint32_t value) {
     return ::ntohl(value);
 }
 
-uint16_t ntohs(uint16_t value) {
+uint16_t infra_ntohs(uint16_t value) {
     return ::ntohs(value);
 }
 
