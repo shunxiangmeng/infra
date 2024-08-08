@@ -26,7 +26,7 @@ Buffer::Buffer(int32_t capacity) {
         internal_->capacity = capacity;
         internal_->real_capacity = (capacity + k_algin_size - 1) / k_algin_size * k_algin_size;
         internal_->size = 0;
-        internal_->buffer.reset(new char[internal_->real_capacity], std::default_delete<char[]>());
+        internal_->buffer.reset(new char[internal_->real_capacity], std::default_delete<char>());
 
         BufferMemoryStatistic::instance()->increase(internal_->real_capacity);
     }
@@ -48,7 +48,7 @@ bool Buffer::ensureCapacity(int32_t capacity) {
     if (internal_ && capacity <= internal_->capacity) {
         return true;
     } else { //扩容或者直接分配
-        std::shared_ptr<char[]> buffer_temp;
+        std::shared_ptr<char> buffer_temp;
         int32_t old_data_size = 0;
         int32_t old_real_capacity = 0;
         if (internal_) {
@@ -64,7 +64,7 @@ bool Buffer::ensureCapacity(int32_t capacity) {
         internal_->capacity = capacity;
         internal_->real_capacity = (capacity + k_algin_size - 1) / k_algin_size * k_algin_size;
         internal_->size = 0;
-        internal_->buffer.reset(new char[internal_->real_capacity], std::default_delete<char[]>());
+        internal_->buffer.reset(new char[internal_->real_capacity], std::default_delete<char>());
 
         if (old_data_size) {
             infof("buffer extention memory from %d to %d\n", old_data_size, capacity);
@@ -134,7 +134,7 @@ char Buffer::operator[](int32_t index) const {
             errorf("buffer operator index %d > capacity %d\n", index, internal_->capacity);
             return -1;
         }
-        return internal_->buffer[index];
+        return internal_->buffer.get()[index];
     }
     errorf("buffer not init\n");
     return -1;

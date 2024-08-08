@@ -62,7 +62,7 @@ public:
 
 protected:
     struct BufferInternal {
-        std::shared_ptr<char[]> buffer;
+        std::shared_ptr<char> buffer;
         int32_t capacity;
         int32_t real_capacity;  //内存对齐之后的大小
         int32_t size;
