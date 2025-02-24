@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  TcpSocket.cpp
  * Author      :  mengshunxiang 
@@ -7,10 +7,10 @@
  * Description :  None
  * Note        : 
  ************************************************************************/
-#include "include/network/TcpSocket.h"
-#include "include/Logger.h"
+#include "infra/include/network/TcpSocket.h"
+#include "infra/include/Logger.h"
 #include "../Errno.h"
-#include "include/network/Defines.h"
+#include "infra/include/network/Defines.h"
 
 namespace infra {
 
@@ -50,14 +50,13 @@ bool TcpSocket::connect(const std::string& remote_ip, uint16_t remote_port, bool
         int count = 0;
         int ipbufferlength = 0;
         for (struct addrinfo *ptr = result; ptr != nullptr; ptr = ptr->ai_next) {
-            tracef("getaddrinfo response %d\n", count++);
-            tracef("Flags: 0x%x\n", ptr->ai_flags);
+            //tracef("getaddrinfo response %d\n", count++);
+            //tracef("Flags: 0x%x\n", ptr->ai_flags);
             switch (ptr->ai_family) {
                 case AF_UNSPEC:
                     warnf("Unspecified\n");
                     break;
                 case AF_INET:
-                    tracef("AF_INET (IPv4)\n");
                     sockaddr_ipv4 = (struct sockaddr_in *) ptr->ai_addr;
                     real_remote_ip = inet_ntoa(sockaddr_ipv4->sin_addr);
                     tracef("IPv4 address: %s\n", inet_ntoa(sockaddr_ipv4->sin_addr));

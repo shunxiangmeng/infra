@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  WorkThreadPool.cpp
  * Author      :  mengshunxiang 
@@ -7,8 +7,8 @@
  * Description :  None
  * Note        : 
  ************************************************************************/
-#include "include/thread/WorkThreadPool.h"
-#include "include/Logger.h"
+#include "infra/include/thread/WorkThreadPool.h"
+#include "infra/include/Logger.h"
 
 namespace infra {
 
@@ -35,7 +35,8 @@ bool WorkThreadPool::init(int32_t thread_num, WorkThread::Priority priority, boo
     thread_num_ = thread_num > 0 ? thread_num : cpus;
     infof("workthread thread num:%d\n", thread_num_);
     for (int32_t i = 0; i < thread_num_; ++i) {
-        std::shared_ptr<WorkThread> thread = std::make_shared<WorkThread>(priority, "");
+        std::string name = "worker" + std::to_string(i);
+        std::shared_ptr<WorkThread> thread = std::make_shared<WorkThread>(priority, name);
         thread->start();
         threads_.emplace_back(std::move(thread));
     }
@@ -71,7 +72,7 @@ int64_t WorkThreadPool::postDelayedTask(Task &&task, int64_t delay_time_ms) {
 }
 
 std::shared_ptr<TaskExecutor> WorkThreadPool::getExecutor() {
-    auto thread_pos = thread_pos_;
+    size_t thread_pos = thread_pos_;
     if (thread_pos >= threads_.size()) {
         thread_pos = 0;
     }

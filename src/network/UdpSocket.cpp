@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  UdpSocket.cpp
  * Author      :  mengshunxiang 
@@ -7,9 +7,9 @@
  * Description :  None
  * Note        : 
  ************************************************************************/
-#include "include/network/UdpSocket.h"
-#include "src/Errno.h"
-#include "include/Logger.h"
+#include "infra/include/network/UdpSocket.h"
+#include "../Errno.h"
+#include "infra/include/Logger.h"
 
 namespace infra {
     
@@ -120,6 +120,15 @@ int32_t UdpSocket::send(const char *buffer, int32_t length) {
         return ret;
     }
     return ret;
+}
+
+int32_t UdpSocket::setBroadcast() {
+    char broadcast = 1;
+    if (setsockopt(fd_, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(int)) < 0) {
+        errorf("setsockopt broadcast error:%s!\n", lastErrno(true));
+        return -1;
+    }
+    return 0;
 }
 
 } // namespace infra

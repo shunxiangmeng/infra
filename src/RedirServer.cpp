@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  RedirServer.cpp
  * Author      :  mengshunxiang 
@@ -17,8 +17,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #endif
-#include "include/RedirServer.h"
-#include "include/Logger.h"
+#include "infra/include/RedirServer.h"
+#include "infra/include/Logger.h"
 
 namespace infra {
 
@@ -58,7 +58,7 @@ bool RedirServer::start() {
     int fd_in_bak = dup(STDIN_FILENO);
     assert(fd_out_bak >= 0 && fd_in_bak >= 0);
     if (path_.empty()|| (creat(path_.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) == -1)) {
-        errorf("%s[%d]:error!\n", __FILE__, __LINE__);
+        errorf("create %s error:%d\n", path_.c_str(), errno);
         return false;
     }
 

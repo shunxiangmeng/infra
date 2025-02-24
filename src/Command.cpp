@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  Command.cpp
  * Author      :  mengshunxiang 
@@ -9,8 +9,9 @@
  ************************************************************************/
 #include <stdio.h>
 #include <stdarg.h>
-#include "include/Command.h"
-#include "include/Logger.h"
+#include <string.h>
+#include "infra/include/Command.h"
+#include "infra/include/Logger.h"
 
 namespace infra {
 
@@ -25,6 +26,8 @@ std::string command(const char* cmd, ...) {
         return std::string();
     }
     va_end(ap);
+
+    snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), " 2>&1");
 
     std::string result;
     char tmp[1024] = {0};

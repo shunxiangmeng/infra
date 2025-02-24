@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  NetworkThread.cpp
  * Author      :  mengshunxiang 
@@ -7,11 +7,11 @@
  * Description :  None
  * Note        : 
  ************************************************************************/
-#include "include/network/NetworkThread.h"
-#include "include/Logger.h"
-#include "include/Timestamp.h"
-#include "include/network/Defines.h"
-#include "include/Utils.h"
+#include "infra/include/network/NetworkThread.h"
+#include "infra/include/Logger.h"
+#include "infra/include/Timestamp.h"
+#include "infra/include/network/Defines.h"
+#include "infra/include/Utils.h"
 #if defined(HAS_EPOLL)
 #include <sys/epoll.h>
 #define toEpoll(event)      (((event) & SocketHandler::read)  ? EPOLLIN : 0) \
@@ -46,7 +46,11 @@ bool NetworkThread::start() {
 
     int fd = pipe_.readFd();
     struct epoll_event ev = {0};
+#if defined(__UCLIBC__)
+    ev.events = EPOLLIN;
+#else
     ev.events = EPOLLIN | EPOLLEXCLUSIVE;
+#endif
     ev.data.fd = fd;
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &ev);
     if (ret != 0) {
@@ -58,6 +62,11 @@ bool NetworkThread::start() {
     return Thread::start();
 }
 
+void NetworkThread::stop() {
+    wakeUp();
+    Thread::stop();
+}
+
 void NetworkThread::wakeUp() {
     char buffer[1] = {'@'};
     pipe_.write(buffer, sizeof(buffer));
@@ -66,7 +75,11 @@ void NetworkThread::wakeUp() {
 bool NetworkThread::addEvent(int32_t fd, SocketHandler::EventType event, std::shared_ptr<SocketHandler> &handler) {
 #if defined(HAS_EPOLL)
     struct epoll_event ev = {0};
+#if defined(__UCLIBC__)
+    ev.events = (toEpoll(event));
+#else
     ev.events = (toEpoll(event)) | EPOLLEXCLUSIVE;
+#endif
     ev.data.fd = fd;
     int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &ev);
     if (ret != 0) {
@@ -130,6 +143,7 @@ bool NetworkThread::delEvent(int32_t fd, std::shared_ptr<SocketHandler> &handler
 
 void NetworkThread::run() {
     //infof("thread:%s start\n", name_.c_str());
+    setThreadName(name_.c_str());
     setTid(getCurrentThreadId());
     if (!setPriority(priority_)) {
         errorf("setPriority error\n");

@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  UdpSocket.h
  * Author      :  mengshunxiang 
@@ -8,8 +8,8 @@
  * Note        : 
  ************************************************************************/
 #pragma once
-#include "include/network/Socket.h"
-#include "include/network/Defines.h"
+#include "infra/include/network/Socket.h"
+#include "infra/include/network/Defines.h"
 
 namespace infra {
 class UdpSocket : public Socket {
@@ -34,6 +34,8 @@ public:
     virtual uint16_t getLocalPort() override;
 
     int32_t setRemoteAddr(struct sockaddr_in &remote);
+
+    int32_t setBroadcast();
 
     /**
      * @brief 在调用了 setRemoteAddr 之后可以直接调用此函数发送数据

@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  ThreadTaskQueue.cpp
  * Author      :  mengshunxiang 
@@ -7,10 +7,10 @@
  * Description :  None
  * Note        : 
  ************************************************************************/
-#include "include/thread/WorkThread.h"
-#include "include/Logger.h"
-#include "include/Timestamp.h"
-#include "include/Utils.h"
+#include "infra/include/thread/WorkThread.h"
+#include "infra/include/Logger.h"
+#include "infra/include/Timestamp.h"
+#include "infra/include/Utils.h"
 
 namespace infra {
 
@@ -19,6 +19,11 @@ WorkThread::WorkThread(Priority priority, const std::string &name, bool affinity
 }
 
 WorkThread::~WorkThread() {
+}
+
+void WorkThread::stop() {
+    wakeUp();
+    Thread::stop();
 }
 
 void WorkThread::wakeUp() {
@@ -41,6 +46,7 @@ int64_t WorkThread::postDelayedTask(Task &&task, int64_t delay_time_ms) {
 
 void WorkThread::run() {
     //infof("thread:%s start\n", name_.c_str());
+    setThreadName(name_.c_str());
     setTid(getCurrentThreadId());
     if (!setPriority(priority_)) {
         errorf("setPriority error\n");

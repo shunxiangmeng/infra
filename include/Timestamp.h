@@ -32,7 +32,10 @@ static constexpr uint64_t kFractionsPerSecond = 0x100000000;
 int64_t getCurrentTimeNs();
 int64_t getCurrentTimeUs();
 int64_t getCurrentTimeMs();
+int64_t getCurrentTimeS();
 std::string getCurrentTime();
+std::string convertTimestampToString(time_t timestamp);
+std::string getCurrentDateTime(const char *fmt);
 
 class Timestamp final : public UnitBase<Timestamp> {
 public:

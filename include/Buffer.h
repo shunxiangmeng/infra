@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  Buffer.h
  * Author      :  mengshunxiang 
@@ -55,6 +55,8 @@ public:
     char operator[](int32_t index) const;
 
     int32_t putData(const char *data, int32_t size, bool resize = true);
+
+    int32_t putData(char data, bool resize = true);
 
     int32_t reserve() const;
 

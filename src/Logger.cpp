@@ -1,5 +1,5 @@
 /********************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :   Logger.cpp
  * Author      :   mengshunxiang 
@@ -13,9 +13,9 @@
 #include <time.h>
 #include <chrono>
 #include <cstdio>
-#include "include/Logger.h"
-#include "include/File.h"
-#include "include/Utils.h"
+#include "infra/include/Logger.h"
+#include "infra/include/File.h"
+#include "infra/include/Utils.h"
 #if defined(_WIN32)
 #include <Windows.h>
 #else
@@ -111,7 +111,7 @@ FileLogChannel::~FileLogChannel() {
 void FileLogChannel::write(const std::vector<std::shared_ptr<LogContent>> &content) {
     if (fstream_.is_open()) {
         for (size_t i = 0; i < content.size(); i++) {
-            if (!maybeSaveLogfile((int32_t)content[i]->content.size())) {
+            if (!maybeSaveLogfile(content[i]->content.size())) {
                 return;
             }
             fstream_ << content[i]->content;
@@ -122,7 +122,9 @@ void FileLogChannel::write(const std::vector<std::shared_ptr<LogContent>> &conte
 
 std::string FileLogChannel::getLogfileName(bool current) {
     if (current) {
-        return path_ + "/current.log";
+        std::string exe = exePath();
+        std::string exe_file = exe.substr(exe.rfind("/") + 1, -1);
+        return path_ + "/" + exe_file + "_current.log";
     }
 
     time_t now = time(NULL);
@@ -169,10 +171,11 @@ Logger::Logger(LogLevel level) : level_(level), running_(true) {
 }
 
 Logger::~Logger() {
-    flush();
+    printf("%s[%d]~Logger()\n", printTime().data(), getCurrentThreadId());
     std::lock_guard<decltype(logChannelsMutex_)> lock(logChannelsMutex_);
     logChannels_.clear();
     running_ = false;
+    semaphore_.post();
     if (thread_->joinable()) {
         thread_->join();
     }
@@ -201,19 +204,30 @@ void Logger::flush() {
 }
 
 void Logger::run() {
+    setThreadName("logger");
     while (running_) {
         semaphore_.wait();
         flush();
         //优化快速写日志的效率
         //std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+    flush();
+    printf("%s[%d]logger exit\n", printTime().data(), getCurrentThreadId());
+}
+
+void Logger::exit() {
+    running_ = false;
+    semaphore_.post();
+    if (thread_->joinable()) {
+        thread_->join();
+    }
 }
 
 std::string Logger::printTime() {
-    uint64_t timestamp(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+    uint64_t timestamp(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
     struct tm now;
 #ifdef _WIN32
-    uint64_t milli = timestamp + 8 * 60 * 60 * 1000;  //time zone
+    uint64_t milli = timestamp / 1000 + 8 * 60 * 60 * 1000;  //time zone
     auto mTime = std::chrono::milliseconds(milli);
     auto tp = std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>(mTime);
     auto tt = std::chrono::system_clock::to_time_t(tp);
@@ -225,8 +239,8 @@ std::string Logger::printTime() {
 #endif
 
     char buffer[64] = { 0 };
-    snprintf(buffer, sizeof(buffer), "[%4d-%02d-%02d %02d:%02d:%02d.%03d]", 
-        now.tm_year + 1900, now.tm_mon + 1, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec, int(timestamp % 1000));
+    snprintf(buffer, sizeof(buffer), "[%4d-%02d-%02d %02d:%02d:%02d.%06d]", 
+        now.tm_year + 1900, now.tm_mon + 1, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec, int(timestamp % 1000000));
     return buffer;
 }
 
@@ -251,7 +265,7 @@ void Logger::printLog(LogLevel level, const char *file, int line, const char *fm
     }
     va_list ap;
     va_start(ap, fmt);
-    char buffer[4096] = { 0 };
+    char buffer[8192] = { 0 };
     if (vsnprintf(buffer, sizeof(buffer), fmt, ap) > 0) {
         std::string content;
         std::string file_name = file;
@@ -277,7 +291,7 @@ extern "C" {
 void printflog_for_c(int level, const char *file, int line, const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
-    char buffer[4096] = { 0 };
+    char buffer[8192] = { 0 };
     if (vsnprintf(buffer, sizeof(buffer), fmt, ap) > 0) {
         infra::Logger::instance().printLog((infra::LogLevel)level, file, line, buffer);
     }

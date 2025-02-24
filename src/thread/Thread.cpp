@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  Thread.cpp
  * Author      :  mengshunxiang 
@@ -7,8 +7,8 @@
  * Description :  None
  * Note        : 
  ************************************************************************/
-#include "include/thread/Thread.h"
-#include "include/Logger.h"
+#include "infra/include/thread/Thread.h"
+#include "infra/include/Logger.h"
 #if defined(_WIN32)
 #include <Windows.h>
 #else

@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  network.h
  * Author      :  mengshunxiang 
@@ -24,4 +24,6 @@ typedef struct {
 } Interface;
 
 std::vector<Interface> getInterfaceList();
+std::string getIpv4DefaultGateway();
+
 }

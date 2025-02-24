@@ -1,5 +1,5 @@
 /********************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :   Utils.h
  * Author      :   mengshunxiang 
@@ -25,11 +25,8 @@ private:
     noncopyable &operator=(noncopyable &&that) = delete;       //移动赋值运算符
 };
 
-std::string ExePath();
-std::string ExeDir();
-
-void SetThreadName(const char* name);
-
+std::string exePath(bool isExe = true);
+std::string exeDir(bool isExe = true);
 
 template <class C>
 class ObjectStatistic {
@@ -64,6 +61,15 @@ uint16_t infra_htons(uint16_t value);
 uint32_t infra_ntohl(uint32_t value);
 uint16_t infra_ntohs(uint16_t value);
 
-std::string exePath(bool isExe = true);
+void setThreadName(const char *name);
+std::string getThreadName();
+
+std::string noPathFileName(const std::string path);
+
+#define UPALIGNTO(value, align) ((value + align - 1) & (~(align - 1)))
+#define UPALIGNTO2(value) UPALIGNTO(value, 2)
+#define UPALIGNTO4(value) UPALIGNTO(value, 4)
+#define UPALIGNTO16(value) UPALIGNTO(value, 16)
+#define DOWNALIGNTO16(value) (UPALIGNTO(value, 16) - 16)
 
 }

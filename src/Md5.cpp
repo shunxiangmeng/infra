@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  Md5.cpp
  * Author      :  mengshunxiang 
@@ -8,7 +8,7 @@
  * Note        : 
  ************************************************************************/
 #include <string.h>
-#include "include/MD5.h"
+#include "infra/include/MD5.h"
 namespace infra {
 
 #define F(x, y, z) ((x & y) | (~x & z))
@@ -228,15 +228,15 @@ void MD5FinalHex(MD5_CTX *context, char hexdigest[]) {
     }
 }
 
-void MD5SumFile(const char *file,char hexdigest[]) {
-    FILE *fp = fopen(file,"rb");
+void MD5SumFile(const char *file, char hexdigest[]) {
+    FILE *fp = fopen(file, "rb");
     if(fp) {
         MD5_CTX ctx;
         MD5Init(&ctx);
         unsigned char buf[4096] = {0};
         int ret = 0;
         do {
-            ret = (int32_t)fread(buf, sizeof(char), sizeof(buf), fp);
+            ret = fread(buf, sizeof(char), sizeof(buf), fp);
             if (ret > 0) {
                 MD5Update(&ctx,buf,ret);
             }

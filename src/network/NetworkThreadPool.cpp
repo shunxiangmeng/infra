@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  NetworkThreadPool.cpp
  * Author      :  mengshunxiang 
@@ -7,8 +7,8 @@
  * Description :  None
  * Note        : 
  ************************************************************************/
-#include "include/network/NetworkThreadPool.h"
-#include "include/Logger.h"
+#include "infra/include/network/NetworkThreadPool.h"
+#include "infra/include/Logger.h"
 
 namespace infra {
 
@@ -26,7 +26,7 @@ bool NetworkThreadPool::init(int32_t thread_num) {
     infof("network thread num %d, set %d\n", thread_num_real, thread_num);
     
     for (auto i = 0; i < thread_num_real; i++) {
-        std::string name = "netthread_" + std::to_string(i);
+        std::string name = "network" + std::to_string(i);
         std::shared_ptr<NetworkThread> net_thread = std::make_shared<NetworkThread>(Thread::Priority::PRIORITY_HIGH, name);
         if (!net_thread->start()) {
             errorf("thread %s start error\n", name.data());
@@ -37,6 +37,14 @@ bool NetworkThreadPool::init(int32_t thread_num) {
         network_threads_mutex_.unlock();
     }
     running_ = true;
+    return true;
+}
+
+bool NetworkThreadPool::deInit() {
+    std::lock_guard<std::mutex> lock(network_threads_mutex_);
+    for (auto it : network_threads_) {
+        it->stop();
+    }
     return true;
 }
 

@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  NetworkThreadPool.h
  * Author      :  mengshunxiang 
@@ -23,6 +23,8 @@ public:
     static NetworkThreadPool* instance();
 
     bool init(int32_t thread_num = 0);
+
+    bool deInit();
 
     bool addSocketEvent(int32_t fd, SocketHandler::EventType event, std::shared_ptr<SocketHandler> handler);
 

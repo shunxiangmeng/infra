@@ -1,8 +1,14 @@
-#include "include/network/Network.h"
-#include "include/network/Defines.h"
+#include "infra/include/network/Network.h"
+#include "infra/include/network/Defines.h"
+#include "infra/include/Logger.h"
 #include <string.h>
-#ifndef _WIN32
+#include <stdio.h>
+#ifdef _WIN32
+#include <iphlpapi.h>
+#pragma comment(lib, "Iphlpapi.lib")
+#else
 #include <signal.h>
+#include <unistd.h>
 #endif
 
 namespace infra {
@@ -54,7 +60,7 @@ static void for_each_netAdapter_posix(FUN &&fun) { //type: struct ifaddrs *
     if (getifaddrs(&interfaces) == 0) {
         adapter = interfaces;
         while (adapter) {
-            if (adapter->ifa_addr->sa_family == AF_INET) {
+            if (adapter->ifa_addr && adapter->ifa_addr->sa_family == AF_INET) {
                 if (fun(adapter)) {
                     break;
                 }
@@ -66,10 +72,47 @@ static void for_each_netAdapter_posix(FUN &&fun) { //type: struct ifaddrs *
 }
 #endif
 
+
+static bool getInterfaceMac(const char *if_name, std::string &mac) {
+#ifdef _WIN32
+#else
+    struct ifreq ifreq;
+    int sock;
+    if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        errorf("socket fail\n");
+        return false;
+    }
+    strncpy(ifreq.ifr_name, if_name, sizeof(ifreq.ifr_name));
+    if (ioctl(sock, SIOCGIFHWADDR, &ifreq) < 0) {
+        errorf("ioctl SIOCGIFHWADDR %s fail\n", if_name);
+        close(sock);
+        return -1;
+    }
+    char tmp[32] = {0};
+    unsigned char *p = (unsigned char *)ifreq.ifr_hwaddr.sa_data;
+    sprintf((char *)tmp, "%02x:%02x:%02x:%02x:%02x:%02x", p[0], p[1], p[2], p[3], p[4], p[5]);
+    close(sock);
+    mac = tmp;
+#endif
+    return 0;
+}
+
 std::vector<Interface> getInterfaceList() {
     std::vector<Interface> result;
 
 #ifdef _WIN32
+    for_each_netAdapter_win32([&](PIP_ADAPTER_INFO adapter) {
+        IP_ADDR_STRING *ipAddr = &(adapter->IpAddressList);
+        while (ipAddr) {
+            Interface interface0;
+            interface0.ip = ipAddr->IpAddress.String;
+            interface0.netmask = ipAddr->IpMask.String;
+            interface0.name = adapter->AdapterName;
+            result.emplace_back(std::move(interface0));
+            ipAddr = ipAddr->Next;
+        }
+        return false;
+    });
 #else
     for_each_netAdapter_posix([&](struct ifaddrs *adapter) {
         if (IFF_LOOPBACK == (adapter->ifa_flags & IFF_LOOPBACK)) {
@@ -79,6 +122,8 @@ std::vector<Interface> getInterfaceList() {
         char buffer[64] = {0};
         Interface interface;
         interface.name = adapter->ifa_name;
+
+        getInterfaceMac(adapter->ifa_name, interface.mac);
 
         int32_t family = adapter->ifa_addr->sa_family;
         if (family == AF_INET) {
@@ -112,6 +157,34 @@ std::vector<Interface> getInterfaceList() {
     });
 #endif
     return result;
+}
+
+std::string getIpv4DefaultGateway() {
+    std::string gateway;
+#ifdef _WIN32
+    errorf("win32 not impl getIpv4DefaultGateway\n");
+#else
+    FILE *fp = fopen("/proc/net/route", "r");
+    if (fp == nullptr) {
+        errorf("get default geteway open /proc/net/route error");
+        return gateway;
+    }
+    char buffer[128] = {0};
+    char ifname[32] = {0};
+    unsigned long dest_addr = 0, gateway_addr = 0;
+    while (fgets(buffer, sizeof(buffer), fp)) {
+        if (sscanf(buffer, "%s\t%lX\t%lX", ifname, &dest_addr, &gateway_addr) != 3 || dest_addr != 0) {
+            continue;
+        }
+        char ip[32] = {0};
+        snprintf(ip, sizeof(ip), "%d.%d.%d.%d", gateway_addr & 0xff, (gateway_addr >> 8) & 0xff, (gateway_addr >> 16) & 0xff, (gateway_addr >> 24) & 0xff);
+        gateway = ip;
+        infof("ipv4 default gateway:%s, if:%s\n", ip, ifname);
+        break;
+    }
+    fclose(fp);
+#endif
+    return gateway;
 }
 
 }

@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  ThreadTaskQueue.h
  * Author      :  mengshunxiang 
@@ -26,6 +26,8 @@ public:
 
     virtual bool postTask(Task &&task) override;
     virtual int64_t postDelayedTask(Task &&task, int64_t delay_time_ms) override;
+
+    void stop();
 
 private:
     virtual void run() override;

@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  SharedMemory.cpp
  * Author      :  mengshunxiang 
@@ -7,8 +7,8 @@
  * Description :  None
  * Note        : 
  ************************************************************************/
-#include "include/SharedMemory.h"
-#include "include/Logger.h"
+#include "infra/include/SharedMemory.h"
+#include "infra/include/Logger.h"
 #ifdef _WIN32
 #include <io.h>  // CreateFileMappingA, OpenFileMappingA, etc.
 #include <assert.h>

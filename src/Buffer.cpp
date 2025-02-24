@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  Buffer.cpp
  * Author      :  mengshunxiang 
@@ -8,8 +8,8 @@
  * Note        : 
  ************************************************************************/
 #include <string.h>
-#include "include/Buffer.h"
-#include "include/Logger.h"
+#include "infra/include/Buffer.h"
+#include "infra/include/Logger.h"
 
 namespace infra {
 
@@ -151,7 +151,21 @@ int32_t Buffer::putData(const char *data, int32_t size, bool resize) {
         }
         errorf("buffer put size %d > remaining size %d\n", size, internal_->capacity - internal_->size);
     }
-    return -1;
+    return 0;
+}
+
+int32_t Buffer::putData(char data, bool resize) {
+    if (internal_) {
+        if (1 <= internal_->capacity - internal_->size) {
+            memcpy(internal_->buffer.get() + internal_->size, &data, 1);
+            if (resize) {
+                internal_->size += 1;
+            }
+            return 1;
+        }
+        errorf("buffer put size %d > remaining size %d\n", 1, internal_->capacity - internal_->size);
+    }
+    return 0;
 }
 
 }

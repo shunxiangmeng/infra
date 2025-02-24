@@ -13,8 +13,8 @@
 #include <map>
 #include <mutex>
 #include <fstream>
-#include "include/Semaphore.h"
-#include "include/Utils.h"
+#include "infra/include/Semaphore.h"
+#include "infra/include/Utils.h"
 
 namespace infra {
 
@@ -76,6 +76,7 @@ public:
     void addLogChannel(const std::shared_ptr<LogChannel>& channel);
     void setLevel(LogLevel level);
     void printLog(LogLevel level, const char *file, int line, const char *fmt, ...);
+    void exit();
 private:
     void run();
     void flush();

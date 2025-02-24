@@ -1,11 +1,11 @@
-#include "include/Logger.h"
+#include "logger.h"
 #include <stdio.h>
 #include <thread>
-#include "include/Optional.h"
+#include <unistd.h>
+#include "optional.h"
 #include <optional>
 
-#include "include/network/Pipe.h"
-#include "include/Buffer.h"
+#include "network/Pipe.h"
 
 #define print_log_count 2
 
@@ -43,16 +43,12 @@ int main(int argc, char* argv[]) {
         tracef("is_start.value %d\n", *is_start ? 1 : 0);
     }
 
+    char* tty_name = ttyname(STDOUT_FILENO);
+    infof("tty_name:%s\n", tty_name);
+
     std::thread thread1([]() {logTestThread1();});
 
     //std::nullopt;
-    infra::Buffer buffer(100);
-    char a[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    buffer.putData(a, sizeof(a));
-
-    {
-        infra::Buffer buffer2(100);
-    }
 
     int32_t count = 0;
     while (true) {

@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024  technology
+ * Copyright(c) 2024 shanghai ulucu technology
  * 
  * File        :  NetworkTHread.h
  * Author      :  mengshunxiang 
@@ -27,6 +27,7 @@ public:
     virtual ~NetworkThread();
 
     bool start();
+    void stop();
 
     virtual bool postTask(Task &&task) override;
     virtual int64_t postDelayedTask(Task &&task, int64_t delay_time_ms) override;
