@@ -1,5 +1,5 @@
 /************************************************************************
- * Copyright(c) 2024 shanghai ulucu technology
+ * Copyright(c) 2024   technology
  * 
  * File        :  Buffer.h
  * Author      :  mengshunxiang 
